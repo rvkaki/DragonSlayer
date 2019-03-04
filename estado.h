@@ -39,6 +39,7 @@ typedef struct posicao {
 \brief Estrutura que armazena a posição e o tipo de um inimigo
 */
 typedef struct inimigo {
+	/** \brief Posição do inimigo */
 	POSICAO posicao;
 	/** \brief Tipo do inimigo (1 spriggan, 0 dragão) */
 	int spriggan;

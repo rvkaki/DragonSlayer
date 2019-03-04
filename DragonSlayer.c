@@ -27,7 +27,7 @@ int posicao_valida(int x, int y) {
 }
 
 /**
-\brief Função que verificam se uma posição é igual a duas coordenadas
+\brief Função que verifica se uma posição é igual a duas coordenadas
 @param p posição
 @param x coluna
 @param y linha
@@ -38,7 +38,7 @@ int posicao_igual(POSICAO p, int x, int y) {
 }
 
 /**
-\brief Funções que verificam se a posição de um inimigo é igual a duas coordenadas
+\brief Função que verifica se a posição de um inimigo é igual a duas coordenadas
 @param p posição do inimigo
 @param x coluna
 @param y linha

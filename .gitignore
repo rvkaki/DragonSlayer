@@ -1,0 +1,6 @@
+DragonSlayer
+*.o
+install
+html
+latex
+Doxyfile
