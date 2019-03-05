@@ -38,26 +38,14 @@ int posicao_igual(POSICAO p, int x, int y) {
 }
 
 /**
-\brief Função que verifica se a posição de um inimigo é igual a duas coordenadas
-@param p posição do inimigo
-@param x coluna
-@param y linha
-@returns 1 se sim, 0 se não
-*/
-int posicao_igual_inimigo(INIMIGO p, int x, int y) {
-	return p.posicao.x == x && p.posicao.y == y;
-}
-
-/**
 \brief Função que verifica se uma posição é adjacente a outra
 @param p1 posição 1
 @param p2 posição 2
 @returns 1 se sim, 0 se não
 */
 int posicao_adjacente(POSICAO p1, POSICAO p2){
-	int dx, dy;
-	for (dx = -1; dx <= 1; dx++)
-		for (dy = -1; dy <= 1; dy++)
+	for (int dx = -1; dx <= 1; dx++)
+		for (int dy = -1; dy <= 1; dy++)
 			if ((p1.x + dx == p2.x) && (p1.y + dy == p2.y))
 				return 1;
 
@@ -72,8 +60,7 @@ int posicao_adjacente(POSICAO p1, POSICAO p2){
 @returns 1 se sim, 0 se não
 */
 int tem_inimigo(ESTADO e, int x, int y) {
-	int i;
-	for (i = 0; i < e.num_inimigos; i++)
+	for (int i = 0; i < e.num_inimigos; i++)
 		if (posicao_igual(e.inimigo[i].posicao, x, y))
 			return 1;
 
@@ -120,13 +107,11 @@ int pathclear(ESTADO e, int offset, INIMIGO p, int x){
 @returns 1 se sim, 0 se não
 */
 int alcance_dragao(ESTADO e, POSICAO p1, INIMIGO p2){
-	int dx, dy;
-
-	for (dx = -3; dx <= 3; dx++)
+	for (int dx = -3; dx <= 3; dx++)
 		if ((p1.x == p2.posicao.x + dx) && (p1.y == p2.posicao.y) && pathclear(e, dx, p2, 1))
 			return 1;
 
-	for (dy = -3; dy <= 3; dy++)
+	for (int dy = -3; dy <= 3; dy++)
 		if ((p1.x == p2.posicao.x) && (p1.y == p2.posicao.y + dy) && pathclear(e, dy, p2, 0))
 			return 1;
 
@@ -141,8 +126,7 @@ int alcance_dragao(ESTADO e, POSICAO p1, INIMIGO p2){
 @returns 1 se válida, 0 se não
 */
 int tem_obstaculo(ESTADO e, int x, int y) {
-	int i;
-	for (i = 0; i < e.num_obstaculos; i++)
+	for (int i = 0; i < e.num_obstaculos; i++)
 		if (posicao_igual(e.obstaculo[i], x, y))
 			return 1;
 
@@ -226,13 +210,10 @@ int posicao_ocupada(ESTADO e, int x, int y) {
 @returns estado alterado
 */
 ESTADO inicializar_jogador(ESTADO e) {
-	if (e.nivel == 0) {
-		e.jog.x = 0;
-		e.jog.y = 0;
-	} else {
-		e.jog.x = 1;
-		e.jog.y = 0;
-	}
+	if (e.nivel == 0)
+		e.jog = (POSICAO){0, 0};
+	else
+		e.jog = (POSICAO){1, 0};
 
 	return e;
 }
@@ -249,13 +230,15 @@ ESTADO inicializar_inimigo(ESTADO e) {
 		y = random() % TAM;
 	} while (posicao_ocupada(e, x, y) || (x < 3 && y < 2));
 
-	e.inimigo[e.num_inimigos].posicao.x = x;
-	e.inimigo[e.num_inimigos].posicao.y = y;
-	if(e.num_inimigos < e.nivel -4)
-		e.inimigo[e.num_inimigos].spriggan = 0;
+	int spriggan;
+	if (e.num_inimigos < e.nivel-4) // Os dragões começam a aparecer no nível 5
+		spriggan = 0;
 	else 
-		e.inimigo[e.num_inimigos].spriggan = 1;
-	e.num_inimigos++;
+		spriggan = 1;
+
+	POSICAO posInimigo = {x, y};
+	INIMIGO inimigo = {posInimigo, spriggan};
+	e.inimigo[e.num_inimigos++] = inimigo;
 
 	return e;
 }
@@ -269,8 +252,7 @@ ESTADO inicializar_inimigo(ESTADO e) {
 ESTADO inicializar_inimigos(ESTADO e, int num) {
 	e.num_inimigos = 0;
 
-	int i;
-	for (i = 0; i < num; i++)
+	for (int i = 0; i < num; i++)
 		e = inicializar_inimigo(e);
 
 	return e;
@@ -288,9 +270,8 @@ ESTADO inicializar_obstaculo(ESTADO e) {
 		y = random() % TAM;
 	} while (posicao_ocupada(e, x, y) || (x < 3 && y < 2));
 
-	e.obstaculo[e.num_obstaculos].x = x;
-	e.obstaculo[e.num_obstaculos].y = y;
-	e.num_obstaculos++;
+	POSICAO posObstaculo = {x, y};
+	e.obstaculo[e.num_obstaculos++] = posObstaculo;
 
 	return e;
 }
@@ -304,8 +285,7 @@ ESTADO inicializar_obstaculo(ESTADO e) {
 ESTADO inicializar_obstaculos(ESTADO e, int num) {
 	e.num_obstaculos = 0;
 
-	int i;
-	for (i = 0; i < num; i++)
+	for (int i = 0; i < num; i++)
 		e = inicializar_obstaculo(e);
 
 	return e;
@@ -323,8 +303,8 @@ ESTADO inicializar_pocao(ESTADO e) {
 		y = random() % TAM;
 	} while (posicao_ocupada(e, x, y) || (x < 3 && y < 2));
 
-	e.pocao.x = x;
-	e.pocao.y = y;
+	POSICAO posPocao = {x, y};
+	e.pocao = posPocao;
 
 	return e;
 }
@@ -338,8 +318,7 @@ ESTADO inicializar_pocao(ESTADO e) {
 ESTADO inicializar_scores(ESTADO e, int *scores) {
 	if (scores == NULL) return e;
 
-	int i;
-	for (i = 0; i < NUM_SCORES; i++)
+	for (int i = 0; i < NUM_SCORES; i++)
 		e.scores[i] = scores[i];
 
 	return e;
@@ -387,17 +366,16 @@ ESTADO inicializar(int nivel, int score, int *scores, int vidas, int inimigos_mo
 @returns estado
 */
 ESTADO ler_estado(char *args) {
-	ESTADO e;
 	char acao[32];
-	int x = 0, y = 0, lidos;
-	lidos = sscanf(args, "%[^,],%d,%d", acao, &x, &y);
+	int x = 0, y = 0;
+	int lidos = sscanf(args, "%[^,],%d,%d", acao, &x, &y);
 
 	if (lidos >= 1)
 		aplicar_acao(acao, x, y);
 	else
 		aplicar_acao("menu", x, y);
 
-	e = ficheiro2estado();
+	ESTADO e = ficheiro2estado();
 
 	return e;
 }
@@ -406,9 +384,8 @@ ESTADO ler_estado(char *args) {
 \brief Função que imprime o tabuleiro de jogo
 */
 void imprime_tabuleiro() {
-	int x, y;
-	for(y = 0; y < TAM; y++)
-		for(x = 0; x < TAM; x++)
+	for(int y = 0; y < TAM; y++)
+		for(int x = 0; x < TAM; x++)
 			IMAGEM(x, y, ESCALA, "rect_gray1.png");
 }
 
@@ -447,7 +424,6 @@ void imprime_casa_transparente(int x, int y) {
 void imprime_acao(ESTADO e, int dx, int dy) {
 	int x = e.jog.x + dx;
 	int y = e.jog.y + dy;
-	char link[2048];
 	char acao[32];
 
 	if (!posicao_valida(x, y) || tem_obstaculo(e, x, y) || tem_jogador(e, x, y) || tem_entrada(e, x, y))
@@ -469,6 +445,7 @@ void imprime_acao(ESTADO e, int dx, int dy) {
 		strcpy(acao, "move_casa");
 	}
 
+	char link[2048];
 	sprintf(link, "http://localhost/cgi-bin/DragonSlayer?%s,%d,%d", acao, x, y);
 	ABRIR_LINK(link);
 	imprime_casa_transparente(x, y);
@@ -480,9 +457,8 @@ void imprime_acao(ESTADO e, int dx, int dy) {
 @param e estado
 */
 void imprime_acoes(ESTADO e) {
-	int dx, dy;
-	for (dx = -1; dx <= 1; dx++)
-		for (dy = -1; dy <= 1; dy++)
+	for (int dx = -1; dx <= 1; dx++)
+		for (int dy = -1; dy <= 1; dy++)
 			imprime_acao(e, dx, dy);
 }
 
@@ -503,8 +479,7 @@ void imprime_jogador(ESTADO e) {
 @param e estado
 */
 void imprime_inimigos(ESTADO e) {
-	int i;
-	for(i = 0; i < e.num_inimigos; i++)
+	for(int i = 0; i < e.num_inimigos; i++)
 		if(e.inimigo[i].spriggan)
 			IMAGEM(e.inimigo[i].posicao.x, e.inimigo[i].posicao.y, ESCALA, "spriggan.png");
 		else
@@ -525,11 +500,10 @@ void imprime_casas_atacadas(ESTADO e) {
 		TEXTO((TAM+1)*ESCALA, (TAM-1)*ESCALA, "#000000", "Ocultar casas atacadas");
 		FECHAR_LINK;
 
-		int x, y, k;
-		for (y = 0; y < TAM; y++) {
-			for (x = 0; x < TAM; x++) {
+		for (int y = 0; y < TAM; y++) {
+			for (int x = 0; x < TAM; x++) {
 				POSICAO casa = {x, y};
-				for (k = 0; k < e.num_inimigos; k++) {
+				for (int k = 0; k < e.num_inimigos; k++) {
 					INIMIGO p2 = e.inimigo[k];
 					if (((p2.spriggan && posicao_adjacente(casa, p2.posicao)) || (!p2.spriggan && alcance_dragao(e, casa, p2))) && !posicao_igual(p2.posicao, casa.x, casa.y) && !tem_obstaculo(e, x, y) && !tem_saida(e, x, y) && !tem_entrada(e, x, y)) {
 						QUADRADO_VERMELHO(x, y, ESCALA);
@@ -545,8 +519,7 @@ void imprime_casas_atacadas(ESTADO e) {
 @param e estado
 */
 void imprime_obstaculos(ESTADO e) {
-	int i;
-	for(i = 0; i < e.num_obstaculos; i++)
+	for(int i = 0; i < e.num_obstaculos; i++)
 		IMAGEM(e.obstaculo[i].x, e.obstaculo[i].y, ESCALA, "lava1.png");
 }
 
@@ -738,13 +711,13 @@ void imprime_estado(ESTADO e) {
 @returns estado alterado
 */
 ESTADO move_inimigos(ESTADO e, int novojogx, int novojogy) {
-	int i, x, y, dx, dy;
 	POSICAO novojog = {novojogx, novojogy};
 
-	for (i = 0; i < e.num_inimigos; i++){
+	for (int i = 0; i < e.num_inimigos; i++){
 		if ((e.inimigo[i].spriggan && posicao_adjacente(novojog, e.inimigo[i].posicao)) || (!e.inimigo[i].spriggan && alcance_dragao(e, novojog, e.inimigo[i]))) {
 			e.vidas--;
 		} else {
+			int dx, dy;
 			if (e.hardcore){
 				dx = novojogx - e.inimigo[i].posicao.x;
 				dy = novojogy - e.inimigo[i].posicao.y;
@@ -754,8 +727,8 @@ ESTADO move_inimigos(ESTADO e, int novojogx, int novojogy) {
 			}
 			dx = sign(dx);
 			dy = sign(dy);
-			x = e.inimigo[i].posicao.x + dx;
-			y = e.inimigo[i].posicao.y + dy;
+			int x = e.inimigo[i].posicao.x + dx;
+			int y = e.inimigo[i].posicao.y + dy;
 			if (!posicao_ocupada(e, x, y) && (x != novojogx || y != novojogy)){
 				e.inimigo[i].posicao.x = x;
 				e.inimigo[i].posicao.y = y;

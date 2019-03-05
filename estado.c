@@ -4,31 +4,13 @@
 ESTADO inicializar(int nivel, int score, int *scores, int vidas, int inimigos_mortos, int mostrar_ecra, int hardcore, int mostrar_casas_atacadas, int idx_ultimo_score);
 ESTADO move_inimigos(ESTADO e, int a, int b);
 int tem_inimigo(ESTADO e, int x, int y);
+int posicao_igual(POSICAO p, int x, int y);
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
 @file estado.c
 Código do estado e das funções que convertem estados em ficheiros e vice-versa
 */
-
-/**
-\brief Função que elimina um inimigo
-@param e estado
-@param i posição do inimigo no array
-@returns estado
-*/
-ESTADO elimina_inimigo(ESTADO e, int i){
-	int idx_ultimo_inimigo = e.num_inimigos - 1;
-	e.inimigo[i].posicao.x = e.inimigo[idx_ultimo_inimigo].posicao.x;
-	e.inimigo[i].posicao.y = e.inimigo[idx_ultimo_inimigo].posicao.y;
-	e.inimigo[i].spriggan = e.inimigo[idx_ultimo_inimigo].spriggan;
-	e.inimigo[idx_ultimo_inimigo].posicao.x = 0;
-	e.inimigo[idx_ultimo_inimigo].posicao.y = 0;
-	e.inimigo[idx_ultimo_inimigo].spriggan = 0;
-	e.num_inimigos--;
-
-	return e;
-}
 
 /**
 \brief Função que mata um inimigo
@@ -40,8 +22,8 @@ ESTADO elimina_inimigo(ESTADO e, int i){
 ESTADO mata_inimigo(ESTADO e, int x, int y){
 	int i;
 	for (i = 0; i < e.num_inimigos; i++) {
-		if (e.inimigo[i].posicao.x == x && e.inimigo[i].posicao.y == y) {
-			e = elimina_inimigo(e, i);
+		if (posicao_igual(e.inimigo[i].posicao, x, y)) {
+			e.inimigo[i] = e.inimigo[--e.num_inimigos];
 			break;
 		}
 	}
